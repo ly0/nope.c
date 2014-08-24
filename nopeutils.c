@@ -140,7 +140,7 @@ char *getQueryPath(const char *reqString)
 {
     char *queryPath;
     queryPath = strdup(reqString);
-    u_int i;
+    unsigned i;
     for (i = 0; i < strlen(reqString) && (queryPath[i] != '?') && (queryPath[i] != '\0');
          i++) {
     }
@@ -191,6 +191,15 @@ long nprintf(int client, const char *format, ...)
     return done;
 }
 
+int bprint(Request request, const char* buf, size_t len)
+{
+    int done;
+    int client = request.client;
+
+    done = (int)send(client, buf, len, 0);
+    return done;
+}
+
 char *getHeader(char **headers, char *header)
 {
     char *current_header, *matching_header, *value;
@@ -227,15 +236,47 @@ void sendHeadersFromString(Request request, const char *headerString)
 
 void sendHeadersTypeEncoding(Request request, const char *type, const char *encoding)
 {
-    int client = request.client;
-    STATIC_SEND(client, "HTTP/1.0 200 OK\r\n", 0);
-    STATIC_SEND(client, SERVER_STRING, 0);
-    FDPRINTF(client, "Content-Type: %s\r\n", type, 0);
+
     if (encoding != NULL) {
-        FDPRINTF(client, "Content-Encoding: %s\r\n", encoding, 0);
+
+        char *headers[] = {
+            "Content-Type", type,
+            "Content-Encoding", encoding,
+            "Vary", "Accept-Encoding"
+            };
+        SEND_200_HEADER(request, headers, 3);
+
+    } else {
+
+        char *headers[] = {
+            "Content-Type", type,
+            "Vary", "Accept-Encoding"
+            };
+        SEND_200_HEADER(request, headers, 3);
     }
-    STATIC_SEND(client, "Vary: Accept-Encoding\r\n", 0);
-    STATIC_SEND(client, "\r\n", 0);
+    
+}
+
+void sendHeaders(Request request, const char* status,
+                 const char* msg, const char** dict, size_t size)
+{
+    int client = request.client;
+    char buf[512];
+
+    sprintf(buf, "HTTP/1.0: %s %s\r\n", status, msg);
+    STATIC_STR(client, buf, 0);
+
+    STATIC_STR(client, SERVER_STRING, 0);
+
+    for(size_t i = 0; i < size*2; i+=2)
+    {
+        //memset(buf, 0 ,512);
+        sprintf(buf, "%s: %s \r\n", dict[i], dict[i+1]);
+        printf("header sent: %s\n", buf);
+        STATIC_STR(client, buf, 0);
+    }
+
+    STATIC_STR(client, "\r\n", 0);
 }
 
 /* Deprecated */
@@ -382,11 +423,12 @@ char *_hscan(int client, const char *reqStr, const char *msg, const char *inputs
 bool nope_route(Request request, const char *path, void (*function) (Request),
                 bool send_headers)
 {
+    dbgprintf(KGRN "nope_route path=%s, send_headers=%d\n" KNRM, path, send_headers);
     const char *q = request.reqStr;
     while(*path && *q && *path++ == *q++);
     if (*path == 0 && (*q == 0 || *q == '?')) {
         if (send_headers)
-            writeStandardHeaders(request.client);
+            SEND_200_HEADER(request, SEND_TEXT_HTML_HEADER);
         if (function != NULL)
             function(request);
         return true;

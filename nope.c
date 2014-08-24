@@ -610,6 +610,7 @@ void select_loop(int listenfd)
             nbytes =
                 recv(fd, fdDataList[fd].readBuffer + fdDataList[fd].readBufferIdx,
                      MAX_REQUEST_SIZE - fdDataList[fd].readBufferLen, 0);
+            dbgprintf(KGRN "recv %d bytes\n" KNRM, nbytes);
             /* read failure */
             if (nbytes <= 0) {
                 shutdown_connection(fdDataList, fd, nbytes, &master);

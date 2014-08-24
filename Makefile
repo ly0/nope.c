@@ -30,10 +30,10 @@ EXT_OPTIONS=$(PTHREAD) $(DEBUG_OPT) $(PROCESSES_OPT) $(LOOP_OPT) $(MAX_CON_CONS_
 
 CC=gcc
 AR=ar
-CFLAGS=-W -Wall -O2 -Wno-unused-parameter -g $(EXT_OPTIONS)
+CFLAGS=-W -Wall -std=c99 -O2 -Wno-unused-parameter -g $(EXT_OPTIONS)
 LIBNOPE_OBJ=nope.o nopeutils.o
 LIBNOPE=libnope.a
-MODULES=server factor
+MODULES=server svr 
 
 all: $(MODULES)
 

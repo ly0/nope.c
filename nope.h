@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +31,8 @@
 #include <pthread.h>
 #endif
 
+#define NOPE_DEBUG 1
+typedef unsigned short u_short;
 /* Colors. Why not ? */
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"

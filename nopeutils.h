@@ -50,9 +50,11 @@
 #define HP_CLOSE CRLF CTAG(body) CRLF CTAG(html)
 
 #define STATIC_SEND(_socket, _str, _flags) send(_socket, _str, sizeof(_str)-1, _flags)
+#define STATIC_STR(_socket, _str, _flags) send(_socket, _str, strlen(_str), _flags)
 
 #define FDPRINTF nprintf
 #define FDPRINT(_socket, _str) STATIC_SEND(_socket, _str,0)
+#define BYTEPRINT bprint
 
 bool stringEqualsLitLen(const char *varStr, const char *litStr, int litStrLen);
 #define STREQLIT(var,lit) stringEqualsLitLen(var,lit,sizeof lit)
@@ -77,6 +79,7 @@ void serveFile(int, const char *, const char *);
 void serveDownloadableFile(int client, const char *filename, const char *displayFilename,
                            const char *type);
 char *dupstr(const char *);
+void sendHeaders(Request request, const char* status, const char* msg, const char** dict, size_t size);
 
 void unimplemented(int client);
 void not_found(int client);
@@ -112,5 +115,7 @@ bool nope_route(Request request, const char *path, void (*function) (Request),
 #define ENCODING_GZIP "gzip"
 
 #define SEND_TEXT_HTML_HEADER(request) sendHeadersTypeEncoding(request,MIME_TEXT_HTML, NULL)
+#define SEND_200_HEADER(request, dict, size) sendHeaders(request,"200","OK",dict,size)
+#define SEND_404_HEADER
 
 #endif                          /* NOPEUTILS_H_ */
