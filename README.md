@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/riolet/nope.c.svg?branch=master)](https://travis-ci.org/riolet/nope.c)
 
+**This branch was abandoned as the origin has been updated which is quite different from mine. Nevertheless I will fork a lastest version with a regular expression module of url routing.**
+
 #nope.c
 
 nope.c is a C language-based ultra-light software platform for scalable server-side and networking applications. Think node.js for C programmers.
